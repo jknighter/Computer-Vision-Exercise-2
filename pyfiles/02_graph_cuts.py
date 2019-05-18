@@ -292,10 +292,18 @@ def coords_to_index(x, y, width):
 
 def pairwise_potentials(im, pairwise_weight):
     # YOUR CODE HERE
+    edges = np.array([])
+    costs = np.array([])
+    y_offset = [0, 1, 0, -1]
+    x_offset = [1, 0, -1, 0]
     im_h, im_w = im.shape[:2]
     for y in range(im_h):
         for x in range(im_w):
-
+            for i in range(len(x_offset)):
+                if (x + x_offset[i]) >= 0 and (x + x_offset[i]) < im_w and (y + y_offset[i]) >= 0 and (y + y_offset[i]) < im_h:
+                    idx = coords_to_index(x + x_offset[i], y + y_offset[i], im_w)
+                    edges = np.append(edges, [coords_to_index(x, y, im_w), idx])
+                    costs = np.append(costs, pairwise_potential_prefactor(im, x, y, x + x_offset[i], y + y_offset[i], pairwise_weight))
     return edges, costs
 
 pairwise_edges, pairwise_costs = pairwise_potentials(im, pairwise_weight=3)
@@ -320,6 +328,7 @@ axes[0].imshow(draw_mask_on_image(im, foreground_prob>0.5))
 axes[1].set_title('Graph cut result')
 axes[1].imshow(draw_mask_on_image(im, graph_cut_result))
 fig.tight_layout()
+plt.show()
 
 
 # Why is the segmentation the way it is?
