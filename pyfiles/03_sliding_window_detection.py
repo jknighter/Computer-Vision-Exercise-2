@@ -33,6 +33,7 @@ import matplotlib.pyplot as plt
 import imageio
 import sklearn.svm
 import scipy.ndimage
+from IPython import get_ipython
 
 print(cv2.__version__)
 
@@ -269,15 +270,15 @@ def score_map_to_detections(score_map, threshold):
     # YOUR CODE HERE
     xs = np.array([])
     ys = np.array([])
-    scores = np.zeros(score_map.shape)
+    scores = np.array([])
     map_h, map_w = score_map.shape
     for i in range(map_h):
         for j in range(map_w):
             if score_map[i, j] >= threshold:
                 xs = np.append(xs, j)
                 ys = np.append(ys, i)
-                scores[i,j] = score_map[i,j]
-    return xs, ys, scores
+                scores = np.append(scores, score_map[i,j])
+    return xs.astype(int), ys.astype(int), scores.astype(float)
 
 
 # Finally, we can test our car detector!
@@ -344,8 +345,19 @@ plt.show()
 
 def nms(score_map):
     # YOUR CODE HERE
-    raise NotImplementedError()
-
+    map_h, map_w = score_map.shape
+    map_padded = np.zeros((map_h + 2, map_w + 2))
+    map_nms = np.zeros((map_h, map_w))
+    map_padded[1 : 1 + map_h, 1 : 1 + map_w] = score_map
+    y_offset = [0, 1, 1, 1, 0, -1, -1, -1, 0] #range from 0 to 2pi
+    x_offset = [1, 1, 0, -1, -1, -1, 0, 1, 1]
+    for i in range(map_h):
+        for j in range(map_w):
+            # for y in range(len(y_offset)):
+            #     for x in range(len(x_offset)):
+            if map_padded[i + 1, j + 1] >= np.max([map_padded[i + 1 + y, j + 1 + x] for x, y in zip(y_offset, x_offset)]):
+                map_nms[i,j] = map_padded[i + 1, j + 1]
+    return map_nms
 
 # In[ ]:
 
@@ -364,7 +376,7 @@ for test_image in test_images[:8]:
 plot_multiple(
     images, titles, max_columns=3, 
     imheight=2, imwidth=3.5, colormap='viridis')
-
+plt.show()
 
 # **Does the result look better? Can you find examples where it fails? Can you imagine a downside of non-maximum-suppression?**
 

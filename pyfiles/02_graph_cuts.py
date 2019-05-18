@@ -134,17 +134,17 @@ plt.show()
 
 def calculate_histogram(img, mask, n_bins):
     histogram = np.full((n_bins, n_bins, n_bins), fill_value=0.001)
-    
+
     # YOUR CODE HERE
-    #get interested region
+    # get interested region
     region = img[mask.astype(bool)]
-    #count frequencies
+    # count frequencies
     reg_h, reg_w = region.shape[:2]
     for color in region:
-        idx_r, idx_g, idx_b = ((color/255) * n_bins).astype(int) - 1
+        idx_r, idx_g, idx_b = ((color / 255) * n_bins).astype(int) - 1
         histogram[idx_r, idx_g, idx_b] += 1
-    #normalization
-    histogram += histogram/np.sum(histogram)
+    # normalization
+    histogram += histogram / np.sum(histogram)
     return histogram
 
 
